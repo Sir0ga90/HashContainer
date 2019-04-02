@@ -1,0 +1,11 @@
+Implement Javascript-like associated container of pairs int, object
+ - For small gaps use array
+ - Instead of Int use object with overridden hash
+ - Make comparison of performance for
+  = Array without gap (for sizes 1e6)
+  = Array with bad items hash (many hash-colisions, use “bad hash” for Int emulation)
+  = Find best the hash function of
+    -- hash = 101  ((x  24) + 101((x  16)+101(x  8)))+x
+    -- hash = ((x  16) ^ x)  0x45d9f3b
+    -- hash = x
+
