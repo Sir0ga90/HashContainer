@@ -1,27 +1,47 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+
+
 
 //========================================================================//
 struct SHashWrapper {
+    SHashWrapper() = default;
+    SHashWrapper(int new_key);
     int key;
 };
 
+
+class CHashNode;
 using TElement = SHashWrapper;
-using TContainer = std::unique_ptr<TElement[]>;
+using THashNodePtr = std::shared_ptr<CHashNode>;
+//========================================================================//
+class CHashNode
+{
+public:
+    CHashNode(const TElement& value);
+    ~CHashNode() = default;
+
+    THashNodePtr getNextNode() const;
+    void setNextNode(THashNodePtr next_node);
+    int getKey() const;
+
+private:
+    TElement value;
+    THashNodePtr nextNode;
+};
+
+using TContainer = std::unique_ptr<THashNodePtr[]>;
 
 //========================================================================//
-class CContainer {
+class CHashContainer {
 public:
-    CContainer();
-    ~CContainer() = default;
+    CHashContainer();
+    ~CHashContainer() = default;
 
-    void insert(TElement& new_element);
+    void insert(CHashNode& new_element);
 
 private:
     static constexpr int INIT_CAPACITY = 30;
-    SHashWrapper hash(const int& key);
     TContainer container;
-    int current_capacity;
 };

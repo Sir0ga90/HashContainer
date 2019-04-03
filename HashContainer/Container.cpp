@@ -1,28 +1,51 @@
 #include"Container.h"
 
 
-CContainer::CContainer()
-{
-    container = std::make_unique<TElement[]>(INIT_CAPACITY);
-    current_capacity = INIT_CAPACITY;
+SHashWrapper::SHashWrapper(int new_key) :
+    key(new_key) {}
+
+//========================================================================//
+CHashNode::CHashNode(const TElement& value) :
+    value(value),
+    nextNode(nullptr) {}
+
+THashNodePtr CHashNode::getNextNode() const {
+    return nextNode;
 }
 
-void CContainer::insert(TElement& new_element) {
-    auto hashVal = hash(new_element.key);
+void CHashNode::setNextNode(THashNodePtr next_node) {
+    nextNode = next_node;
+}
 
-    if(current_capacity < hashVal.key)
-    {
-        current_capacity = hashVal.key;
-        container = std::make_unique<TElement[]>(current_capacity);
+int CHashNode::getKey() const {
+    return value.key;
+}
+
+
+//========================================================================//
+CHashContainer::CHashContainer() {
+    container = std::make_unique<THashNodePtr[]>(INIT_CAPACITY);
+}
+
+void CHashContainer::insert(CHashNode& new_element) {
+    THashNodePtr prev = nullptr;
+    THashNodePtr entry = nullptr;
+
+    while (entry != nullptr && entry->getKey() != new_element.getKey()) {
+        prev = entry;
+        entry = entry->getNextNode();
     }
 
-    container[hashVal.key] = new_element;
+    if (entry == nullptr) {
+        entry = std::make_shared<CHashNode>(new_element);
+        if (prev == nullptr) {
+            // insert as first bucket
+            container[0] = entry;
+        }
+        else {
+            prev->setNextNode(entry);
+        }
+    }
+
 }
 
-SHashWrapper CContainer::hash(const int& key) {
-    SHashWrapper hash{};
-
-    hash.key = 101 * ((key * 24) + 101 * ((key * 16) + 101 * (key * 8))) + key;
-
-    return hash;
-}
