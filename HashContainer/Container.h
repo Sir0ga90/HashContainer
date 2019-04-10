@@ -1,47 +1,60 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
+
+using THash = uint32_t;
 
 
 //========================================================================//
 struct SHashWrapper {
     SHashWrapper() = default;
-    SHashWrapper(int new_key);
-    int key;
+    SHashWrapper(THash new_hash);
+    THash hashVal;
 };
 
 
-class CHashNode;
-using TElement = SHashWrapper;
-using THashNodePtr = std::shared_ptr<CHashNode>;
 //========================================================================//
-class CHashNode
+using TElement = uint32_t; //for testing of container just key value is enough
+
+
+//========================================================================//
+class CBucket
 {
 public:
-    CHashNode(const TElement& value);
-    ~CHashNode() = default;
+    CBucket() = default;
+    ~CBucket() = default;
 
-    THashNodePtr getNextNode() const;
-    void setNextNode(THashNodePtr next_node);
-    int getKey() const;
+    void insert(const TElement& new_element);
 
 private:
-    TElement value;
-    THashNodePtr nextNode;
+    std::vector<TElement> elements;
+    //TODO: add max size of bucket
 };
 
-using TContainer = std::unique_ptr<THashNodePtr[]>;
 
 //========================================================================//
-class CHashContainer {
+class CHashContainer
+{
 public:
     CHashContainer();
-    ~CHashContainer() = default;
 
-    void insert(CHashNode& new_element);
+    using TContainerLittleGap = std::vector<CBucket>;
+    using TContainerBigGap = std::unordered_map<THash, TElement>;
+
+    void insert(const TElement& new_element);
+    void printData();
 
 private:
-    static constexpr int INIT_CAPACITY = 30;
-    TContainer container;
+    bool isLittleGap(const THash current_hash_val) const;
+    THash hash1(const TElement key);
+    void rebuildContainer(const TElement& new_element);
+
+    TContainerLittleGap littleGapContainer;
+    TContainerBigGap bigGapContainer;
+
+    static constexpr uint32_t INIT_SIZE = 3;
+    static constexpr float FULLNESS_PROPORTION = 0.618033;
+    static uint32_t elements_cntr;
 };
