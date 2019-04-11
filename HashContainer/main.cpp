@@ -32,8 +32,11 @@ void test_hash() {
 
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-    for (int i = 0; i < 1000000; ++i) {
-        TElement elem(random(1000000));
+    constexpr uint32_t NUMBER_OF_ELEMENTS = 1000000;
+
+    for (uint32_t i = 0; i < NUMBER_OF_ELEMENTS; ++i) {
+        //TElement elem(random(NUMBER_OF_ELEMENTS));
+        TElement elem(i);
         container.insert(elem);
     }
 

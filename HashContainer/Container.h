@@ -41,7 +41,7 @@ public:
     CHashContainer();
 
     using TContainerLittleGap = std::vector<CBucket>;
-    using TContainerBigGap = std::unordered_map<THash, TElement>;
+    using TContainerBigGap = std::unordered_map<THash, CBucket>;
 
     void insert(const TElement& new_element);
     void printData();
@@ -49,7 +49,8 @@ public:
 private:
     bool isLittleGap(const THash current_hash_val) const;
     THash hash1(const TElement key);
-    void rebuildContainer(const TElement& new_element);
+    void rebuild();
+    bool isShouldBeDoubled();
 
     TContainerLittleGap littleGapContainer;
     TContainerBigGap bigGapContainer;

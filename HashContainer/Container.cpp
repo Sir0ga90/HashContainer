@@ -28,30 +28,38 @@ void CHashContainer::insert(const TElement& new_element) {
     if (isLittleGap(new_hash)) {
 
         ++elements_cntr;
-    
-        if (new_hash > littleGapContainer.size() ||
-            littleGapContainer.size() / elements_cntr > FULLNESS_PROPORTION) {
 
-            rebuildContainer(new_element);
+        if (new_hash > littleGapContainer.size() || isShouldBeDoubled()) {
+
+            rebuild();
         }
 
         littleGapContainer.at(new_hash).insert(new_element);    //add to bucket
 
     }
     else {
-        bigGapContainer.insert(std::pair<THash, TElement>(new_hash, new_element));
+        auto found_bucket = bigGapContainer.find(new_hash);
+
+        if (found_bucket != bigGapContainer.end()) {
+            found_bucket->second.insert(new_element);
+        }
+        else {
+            CBucket new_bucket;
+            new_bucket.insert(new_element);
+            bigGapContainer.insert(std::pair<THash, CBucket>(new_hash, new_bucket));
+        }
     }
 }
 
 void CHashContainer::printData() {
-    std::cout << "Little gap container: " << littleGapContainer.size() << " elems.\n";
-    std::cout << "Big gap container: " << bigGapContainer.size() << " elems.\n";
+    std::cout << "Present elements count: " << elements_cntr << " elems.\n" <<
+        "Little gap container: " << littleGapContainer.size() << " elems.\n" <<
+        "Big gap container: " << bigGapContainer.size() << " elems.\n";
 }
 
 
 bool CHashContainer::isLittleGap(const THash current_hash_val) const {
     const auto result = current_hash_val < littleGapContainer.size() * 2;
-
     return result;
 }
 
@@ -62,9 +70,21 @@ THash CHashContainer::hash1(const TElement key) {
     return hash % littleGapContainer.size();
 }
 
-void CHashContainer::rebuildContainer(const TElement& new_element)
-{
-    //TODO: make implementation
+void CHashContainer::rebuild() {
+    littleGapContainer.resize(littleGapContainer.size() * 2);
+
+    for (auto& bucket : bigGapContainer) {
+        if (bucket.first < littleGapContainer.size()) {
+            littleGapContainer[bucket.first] = bucket.second;
+        }
+        bigGapContainer.erase(bucket.first);
+    }
+
+}
+
+bool CHashContainer::isShouldBeDoubled() {
+    bool result = static_cast<float>(elements_cntr) / littleGapContainer.size() > FULLNESS_PROPORTION;
+    return result;
 }
 
 //========================================================================//
